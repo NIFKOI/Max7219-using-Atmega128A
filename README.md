@@ -2,3 +2,8 @@
 
 SHT_2022 3704, 3705
 
+CLK PORTA0
+CS PORTA1
+DIN PORTA2
+
+플래그 제가 한거 아닙니다...
