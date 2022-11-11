@@ -469,7 +469,7 @@ unsigned long welcome[4][8] =
 unsigned char display_1[8], display_2[8], display_3[8], display_4[8], space_1[8], space_2[8], space_3[8], space_4[8];
 unsigned long cnt1, cnt2, flag = 1, status, down, side, destroy, endline, zero1, zero2, space[8], space_temp[8], temp[12];
 unsigned char block[4][8], block_temp[8];
-int m1, m2, m3, m4, m5, m6, m7 = 1, m8 = 0, m_start = 1, score, br, br_temp, gameend, set = 1;
+int m1, m2, PressLeft, PressRight, m5, m6, m7 = 1, m8 = 0, m_start = 1, score, br, br_temp, gameend, set = 1;
 
 ISR(TIMER0_OVF_vect)
 {
@@ -578,7 +578,7 @@ void left()
 	if(!(temp[0] | temp[1] | temp[2]))
 		for (int i = 0; i < 8; i++)
 			temp[i+1] = temp[i+2];
-	else m3--;
+	else PressLeft--;
 }
 
 void right()
@@ -586,16 +586,16 @@ void right()
 	if(!(temp[9] | temp[10] | temp[11]))
 		for (int i = 7; i >= 0; i--)
 			temp[i+2] = temp[i+1];
-	else m4--;	
+	else PressRight--;	
 }
 
 void side_check()
 {
-	if(m3 > m4)
-		for(int i = 1; i <= m3-m4; i++)
+	if(PressLeft > PressRight)
+		for(int i = 1; i <= PressLeft - PressRight; i++)
 			left();
-	else if(m4 > m3)
-		for(int i = 1; i <= m4-m3; i++)
+	else if(PressRight > PressLeft)
+		for(int i = 1; i <= PressRight - PressLeft; i++)
 			right();
 	
 	if(m5)
@@ -605,7 +605,7 @@ void side_check()
 			if(space[i] & (temp[i+2] << down))
 			{
 				right();
-				m3--;
+				PressLeft--;
 			}
 		}
 	}
@@ -616,7 +616,7 @@ void side_check()
 			if(space[i] & (temp[i+2] << down))
 			{
 				left();
-				m4--;
+				PressRight--;
 			}
 		}
 	}
@@ -643,7 +643,7 @@ void down_check()
 			display_2[j] |= (temp[j+2] << 24) >> 24;
 		}
 		
-		down = 0, m3 = 0, m4 = 0, status = 0, m_start = 1;
+		down = 0, PressLeft = 0, PressRight = 0, status = 0, m_start = 1;
 		endline = (space[0] | space[1] | space[2] | space[3] | space[4] | space[5] | space[6] | space[7]);
 		if(endline & 0x01)
 			m_start = 1, m8 = 0, gameend = 1;
@@ -670,7 +670,7 @@ void down_check()
 			if(m1)
 			{
 				down = 0;
-				m3 = 0, m4 = 0;
+				PressLeft = 0, PressRight = 0;
 				status = 0;
 				m_start = 1;
 				endline = (space[0] | space[1] | space[2] | space[3] | space[4] | space[5] | space[6] | space[7]);
@@ -776,9 +776,11 @@ int main(void)
 					PORTA |= (1 << PORTA1);
 				}
 				
+				unsigned char sw = ~PINC & 0x0F;
+				
 				if(sw)
 				{	
-					m1 = 0, m2 = 0, m3 = 0, m4 = 0, m5 = 0, m6 = 0, m7 = 1, m8 = 0, m_start = 1, score = 0, br = 0, br_temp = 0, gameend = 0, set = 1;
+					m1 = 0, m2 = 0, PressLeft = 0, PressRight = 0, m5 = 0, m6 = 0, m7 = 1, m8 = 0, m_start = 1, score = 0, br = 0, br_temp = 0, gameend = 0, set = 1;
 					break;
 				}
 			}
@@ -894,7 +896,7 @@ int main(void)
 			if(flag & m7)
 			{
 				flag = 0;
-				m3++;
+				PressLeft++;
 				m5 = 1;
 			}
 		}
@@ -907,7 +909,7 @@ int main(void)
 			if(flag & m7)
 			{
 				flag = 0;
-				m4++;
+				PressRight++;
 				m6 = 1;
 			}
 		}
